@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XTP Node Test - Web Interface</title>
+    <script type="importmap">
+    {
+      "imports": {
+        "@extism/extism": "/node_modules/@extism/extism/dist/browser/mod.js"
+      }
+    }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 1px solid #e1e5e9;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #4facfe;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        button {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border-left: 4px solid #4facfe;
+        }
+
+        .response h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .response pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+
+        .status {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>XTP Node Test</h1>
+            <p>Web Interface for Testing Server Endpoints</p>
+        </div>
+
+        <div class="content">
+            <div class="grid">
+                <!-- Get Slash Commands Section -->
+                <div class="section">
+                    <h2>Get Slash Commands</h2>
+                    <p>Retrieve all available slash commands from the XTP plugin.</p>
+                    <button onclick="getSlashCommands()">Get Commands</button>
+                    <div id="commandsResponse" class="response" style="display: none;">
+                        <h3>Response:</h3>
+                        <pre id="commandsData"></pre>
+                    </div>
+                </div>
+
+                <!-- Send Message Section -->
+                <div class="section">
+                    <h2>Send Message</h2>
+                    <p>Send a message to the XTP plugin. Messages starting with '/' will be processed as commands.</p>
+                    <div class="form-group">
+                        <label for="nick">Nickname:</label>
+                        <input type="text" id="nick" placeholder="Enter nickname" value="testuser">
+                    </div>
+                    <div class="form-group">
+                        <label for="body">Message:</label>
+                        <textarea id="body" rows="4" placeholder="Enter your message here..."></textarea>
+                    </div>
+                    <button onclick="sendMessage()">Send Message</button>
+                    <div id="messageResponse" class="response" style="display: none;">
+                        <h3>Response:</h3>
+                        <pre id="messageData"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Server Status Section -->
+            <div class="section">
+                <h2>Server Status</h2>
+                <p>Check if the server is running and responsive.</p>
+                <button onclick="checkServerStatus()">Check Status</button>
+                <div id="statusResponse" class="response" style="display: none;">
+                    <h3>Server Status:</h3>
+                    <pre id="statusData"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { getCommands, commandHandler } from './commands.js';
+        
+        const API_BASE = window.location.origin;
+
+        // Make functions available globally for onclick handlers
+        window.getSlashCommands = async function() {
+            try {
+                const commands = await getCommands();
+                const data = { slash_commands: commands };
+                
+                document.getElementById('commandsData').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('commandsResponse').style.display = 'block';
+            } catch (error) {
+                document.getElementById('commandsData').textContent = `Error: ${error.message}`;
+                document.getElementById('commandsResponse').style.display = 'block';
+            }
+        };
+
+        window.sendMessage = async function() {
+            const nick = document.getElementById('nick').value;
+            const body = document.getElementById('body').value;
+
+            if (!nick || !body) {
+                alert('Please fill in both nickname and message fields.');
+                return;
+            }
+
+            try {
+                let data;
+                
+                // Check if this is a command (starts with '/')
+                if (body.startsWith('/')) {
+                    // Handle command directly in frontend
+                    const message = { nick, body, type: 'text' };
+                    data = await commandHandler(message);
+                } else {
+                    // Send regular message to server
+                    const response = await fetch(`${API_BASE}/messages`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ nick, body })
+                    });
+                    data = await response.json();
+                }
+                
+                document.getElementById('messageData').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('messageResponse').style.display = 'block';
+                
+                // Clear the message field after successful send
+                document.getElementById('body').value = '';
+            } catch (error) {
+                document.getElementById('messageData').textContent = `Error: ${error.message}`;
+                document.getElementById('messageResponse').style.display = 'block';
+            }
+        };
+
+        window.checkServerStatus = async function() {
+            try {
+                const response = await fetch(`${API_BASE}/`);
+                const data = await response.json();
+                
+                document.getElementById('statusData').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('statusResponse').style.display = 'block';
+            } catch (error) {
+                document.getElementById('statusData').textContent = `Error: ${error.message}`;
+                document.getElementById('statusResponse').style.display = 'block';
+            }
+        };
+
+        // Auto-check server status on page load
+        window.addEventListener('load', () => {
+            setTimeout(checkServerStatus, 1000);
+        });
+
+        // Ensure all functions are available before the page is fully loaded
+        console.log('XTP frontend module loaded successfully');
+    </script>
+    </script>
+</body>
+</html> 
